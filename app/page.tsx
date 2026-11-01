@@ -1,10 +1,92 @@
 'use client'
 
-import { useState } from 'react'
-import { ArrowRight, Baby, Briefcase, Cake, CheckCircle2, Clock3, Flower2, Gem, Headphones, Heart, Mic2, ShieldCheck, Trophy, Users, Zap, Music2, Megaphone } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, Baby, Briefcase, Cake, CheckCircle2, Clock3, Flower2, Gem, Headphones, Heart, Mic2, Music2, Megaphone, ShieldCheck, Star, Trophy, Users, Zap } from 'lucide-react'
 import { CONSENT_TEXT, MOODS, OCCASIONS, SOCIAL, TIERS, type TierId } from '@/lib/catalog'
+import { SONG_SAMPLES } from '@/lib/samples'
 
 const money = (cents: number) => `$${(cents / 100).toFixed(0)}`
+
+type Review = { display_name: string; occasion: string; rating: number; body: string; created_at: string }
+
+function Stars({ count, size = 16 }: { count: number; size?: number }) {
+  return (
+    <span className="flex gap-0.5 text-accent" aria-label={`${count} out of 5 stars`}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Star key={n} size={size} fill={n <= count ? 'currentColor' : 'none'} />
+      ))}
+    </span>
+  )
+}
+
+function ReviewForm({ onSubmitted }: { onSubmitted: () => void }) {
+  const [rating, setRating] = useState(0)
+  const [consent, setConsent] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
+  const [message, setMessage] = useState<string | null>(null)
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    setStatus('sending')
+    setMessage(null)
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          displayName: form.get('displayName'),
+          occasion: form.get('occasion'),
+          rating,
+          body: form.get('body'),
+          consent,
+        }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Something went wrong. Please try again.')
+      setStatus('done')
+      event.currentTarget.reset()
+      setRating(0)
+      setConsent(false)
+      onSubmitted()
+    } catch (err) {
+      setStatus('error')
+      setMessage(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    }
+  }
+
+  if (status === 'done') {
+    return <p className="rounded-2xl border border-accent/30 bg-accent/10 p-6 text-sm leading-7 text-paper">Thank you. Your review was received and will appear here once we have approved it.</p>
+  }
+
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-5 rounded-[1.5rem] border border-white/12 bg-[#14072a]/70 p-6 sm:p-8">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="flex flex-col gap-2 text-sm font-semibold">Your name<input required name="displayName" maxLength={60} className="field" placeholder="How should we show your name?" /></label>
+        <label className="flex flex-col gap-2 text-sm font-semibold">What was the song for?<select name="occasion" className="field" defaultValue={OCCASIONS[0]}>{OCCASIONS.map((o) => <option key={o}>{o}</option>)}</select></label>
+      </div>
+      <fieldset>
+        <legend className="text-sm font-semibold">Your rating</legend>
+        <div className="mt-3 flex gap-2">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button type="button" key={n} onClick={() => setRating(n)} aria-label={`${n} star${n > 1 ? 's' : ''}`} className={`transition-transform hover:scale-110 ${n <= rating ? 'text-accent' : 'text-paper/25'}`}>
+              <Star size={28} fill={n <= rating ? 'currentColor' : 'none'} />
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <label className="flex flex-col gap-2 text-sm font-semibold">Your review<textarea required name="body" minLength={20} maxLength={1000} className="field min-h-28 resize-y" placeholder="What did the song mean to you or the people you gave it to?" /></label>
+      <label className="flex items-start gap-3 text-xs leading-5 text-paper/65">
+        <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} className="mt-1 accent-[#d4a73a]" />
+        <span>I agree that my name, occasion, rating and review may be shown on The Chorus Makers website after we review them.</span>
+      </label>
+      {message && <p role="alert" className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">{message}</p>}
+      <button type="submit" disabled={status === 'sending' || rating === 0 || !consent} className="flex h-12 items-center justify-center rounded-full bg-accent px-6 text-sm font-bold text-[#14072a] transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50">
+        {status === 'sending' ? 'Sending…' : 'Submit review'}
+      </button>
+    </form>
+  )
+}
 
 const athleteCards = [
   { icon: Zap, title: 'Walk-up songs', text: 'A 30 to 60 second intro built for the moment they step up to the plate, the mat, or the line.' },
@@ -77,6 +159,18 @@ export default function Home() {
   const [consent, setConsent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [reviews, setReviews] = useState<Review[]>([])
+
+  function loadReviews() {
+    fetch('/api/reviews')
+      .then((response) => response.json())
+      .then((data) => setReviews(Array.isArray(data.reviews) ? data.reviews : []))
+      .catch(() => setReviews([]))
+  }
+
+  useEffect(() => {
+    loadReviews()
+  }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -192,6 +286,27 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Song examples */}
+      {SONG_SAMPLES.length > 0 && (
+        <section id="samples" className="border-y border-white/5 bg-[#1d0c3a]/50 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <p className="eyebrow">Listen</p>
+            <h2 className="font-display mt-4 text-5xl leading-[0.95] sm:text-7xl">Songs we have made</h2>
+            <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {SONG_SAMPLES.map((sample) => (
+                <figure key={sample.src} className="flex flex-col gap-5 rounded-[1.5rem] border border-white/12 bg-[#14072a]/70 p-6">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">{sample.occasion} · {sample.style}</p>
+                    <figcaption className="font-display mt-2 text-3xl tracking-wide">{sample.title}</figcaption>
+                  </div>
+                  <audio controls preload="none" src={sample.src} className="w-full" aria-label={`Listen to ${sample.title}`} />
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Team feature */}
       <section className="px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
@@ -378,6 +493,43 @@ export default function Home() {
             </button>
             <p className="flex items-center justify-center gap-2 text-center text-xs text-paper/55"><ShieldCheck size={14} /> Secure payment by Stripe. Your card details never touch our site.</p>
           </form>
+        </div>
+      </section>
+
+      {/* Reviews */}
+      <section id="reviews" className="border-t border-white/5 bg-[#1d0c3a]/50 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div className="max-w-2xl">
+              <p className="eyebrow">Reviews</p>
+              <h2 className="font-display mt-4 text-5xl leading-[0.95] sm:text-7xl">What people say after they press play</h2>
+            </div>
+            <p className="max-w-sm text-sm leading-7 text-paper/65">Shared by customers after their song was delivered. Reviews appear here once we have checked them.</p>
+          </div>
+
+          {reviews.length > 0 ? (
+            <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {reviews.map((review) => (
+                <figure key={`${review.display_name}-${review.created_at}`} className="flex flex-col gap-5 rounded-[1.5rem] border border-white/12 bg-[#14072a]/70 p-7">
+                  <Stars count={review.rating} />
+                  <blockquote className="flex-1 text-sm leading-7 text-paper/85">“{review.body}”</blockquote>
+                  <figcaption className="text-xs text-paper/55">
+                    <span className="font-semibold text-paper">{review.display_name}</span> · {review.occasion}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-14 rounded-[1.5rem] border border-dashed border-white/15 p-8 text-sm leading-7 text-paper/65">No reviews yet. Be the first to share how your song made them feel.</p>
+          )}
+
+          <div className="mt-14 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+            <div>
+              <h3 className="font-display text-4xl tracking-wide">Leave a review</h3>
+              <p className="mt-4 text-sm leading-7 text-paper/65">Already have a song from us? Tell others what it meant to you.</p>
+            </div>
+            <ReviewForm onSubmitted={loadReviews} />
+          </div>
         </div>
       </section>
 
