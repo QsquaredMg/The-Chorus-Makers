@@ -1,10 +1,48 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, Baby, Briefcase, Cake, CheckCircle2, Clock3, Flower2, Gem, Headphones, Heart, Mic2, ShieldCheck, Trophy, Users } from 'lucide-react'
-import { CONSENT_TEXT, MOODS, OCCASIONS, TIERS, type TierId } from '@/lib/catalog'
+import { ArrowRight, Baby, Briefcase, Cake, CheckCircle2, Clock3, Flower2, Gem, Headphones, Heart, Mic2, ShieldCheck, Trophy, Users, Zap, Music2, Megaphone } from 'lucide-react'
+import { CONSENT_TEXT, MOODS, OCCASIONS, SOCIAL, TIERS, type TierId } from '@/lib/catalog'
 
 const money = (cents: number) => `$${(cents / 100).toFixed(0)}`
+
+const athleteCards = [
+  { icon: Zap, title: 'Walk-up songs', text: 'A 30 to 60 second intro built for the moment they step up to the plate, the mat, or the line.' },
+  { icon: Megaphone, title: 'Hype tracks', text: 'High-energy songs for warmups, pregame playlists, and the locker room before kickoff.' },
+  { icon: Music2, title: 'Highlight reel scores', text: 'A custom soundtrack for the season recap, senior night, or the awards video.' },
+]
+
+function FacebookIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.5 1.6-1.5h1.6V4.5c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.5H7.6V14h2.7v8h3.2z" />
+    </svg>
+  )
+}
+
+function InstagramIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+    </svg>
+  )
+}
+
+function TikTokIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M16.6 5.8c-.9-.6-1.5-1.5-1.7-2.5h-3v12.6a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.3a5.6 5.6 0 1 0 4.8 5.6V9.3a7.2 7.2 0 0 0 4.2 1.3V7.6c-1.2 0-2.4-.4-3.3-1.8z" />
+    </svg>
+  )
+}
+
+const socialLinks = [
+  { label: 'Instagram', href: SOCIAL.instagram, Icon: InstagramIcon },
+  { label: 'Facebook', href: SOCIAL.facebook, Icon: FacebookIcon },
+  { label: 'TikTok', href: SOCIAL.tiktok, Icon: TikTokIcon },
+].filter((link) => link.href)
 
 const occasionCards = [
   { icon: Heart, title: 'Weddings & anniversaries', text: 'First dance songs, vow songs, and anniversary gifts with the couple’s own story in every line.' },
@@ -74,9 +112,8 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-white/5 bg-[#14072a]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-10">
-          <a href="#top" className="flex items-center gap-3" aria-label="The Chorus Makers home">
-            <img src="/brand/logo.png" alt="" className="h-11 w-auto" />
-            <span className="sr-only">The Chorus Makers</span>
+          <a href="#top" className="flex items-center rounded-2xl bg-[#f6f1e4] px-3 py-1.5 shadow-lg shadow-black/30 ring-1 ring-accent/40" aria-label="The Chorus Makers home">
+            <img src="/brand/logo.png" alt="The Chorus Makers" className="h-12 w-auto" />
           </a>
           <nav className="hidden items-center gap-7 text-sm text-paper/75 md:flex">
             <a href="#occasions" className="transition-colors hover:text-accent">Occasions</a>
@@ -94,6 +131,9 @@ export default function Home() {
       <section id="top" className="relative isolate">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-20 pt-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-10 lg:pb-28 lg:pt-16">
           <div className="reveal order-2 lg:order-1">
+            <div className="mb-8 inline-flex rounded-3xl bg-[#f6f1e4] p-5 shadow-2xl shadow-black/40 ring-1 ring-accent/50">
+              <img src="/brand/logo.png" alt="The Chorus Makers logo: a gold and purple crown with a microphone, in a laurel wreath" className="h-40 w-auto sm:h-48" />
+            </div>
             <p className="eyebrow">Custom music for special occasions</p>
             <h1 className="font-display mt-5 text-[4.25rem] leading-[0.9] sm:text-[6.5rem] lg:text-[7.5rem]">
               <span className="gold-text block">Crafted</span>
@@ -176,6 +216,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Walk-up and athlete hype */}
+      <section id="athletes" className="px-4 pb-20 sm:px-6 lg:px-10 lg:pb-28">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-accent/25 bg-gradient-to-br from-[#2e1456] via-[#1d0c3a] to-[#14072a] p-8 sm:p-14">
+          <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-end lg:gap-16">
+            <div>
+              <p className="eyebrow">Walk-up songs and athlete hype</p>
+              <h2 className="font-display mt-4 text-5xl leading-[0.95] sm:text-7xl">
+                <span className="gold-text block">Their entrance.</span>
+                <span className="block">Their song.</span>
+              </h2>
+              <p className="mt-6 max-w-lg text-base leading-8 text-paper/75">
+                Every athlete deserves a walk-up that makes the crowd stand up. We write original songs for players, coaches and teams, with their name, number, and the story behind them.
+              </p>
+              <a href="#order" onClick={() => setOccasion('Teams & sports')} className="group mt-9 inline-flex items-center gap-3 rounded-full bg-accent px-7 py-4 text-sm font-bold text-[#14072a] transition-transform hover:scale-[1.02]">
+                Order an athlete song <ArrowRight className="transition-transform group-hover:translate-x-1" size={17} />
+              </a>
+            </div>
+            <div className="grid gap-4">
+              {athleteCards.map(({ icon: Icon, title, text }) => (
+                <div key={title} className="flex gap-5 rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-accent/50">
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent/12 text-accent ring-1 ring-accent/25">
+                    <Icon size={22} />
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-bold tracking-tight">{title}</h3>
+                    <p className="mt-1.5 text-sm leading-6 text-paper/65">{text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How it works */}
       <section id="how-it-works" className="border-y border-white/5 bg-[#1d0c3a]/50 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
         <div className="mx-auto max-w-7xl">
@@ -213,7 +287,6 @@ export default function Home() {
                     featured ? 'border-accent bg-gradient-to-b from-[#2e1456] to-[#1d0c3a] shadow-[0_30px_80px_-30px_rgba(212,167,58,0.45)]' : 'border-white/12 bg-[#1d0c3a]/60'
                   }`}
                 >
-                  {featured && <span className="absolute -top-3 left-8 rounded-full bg-accent px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-[#14072a]">Includes lyric video</span>}
                   <p className="font-display text-3xl tracking-wide">{t.name}</p>
                   <div className="mt-5 flex items-baseline gap-2">
                     <span className="font-display gold-text text-7xl leading-none">{money(t.amountCents)}</span>
@@ -345,12 +418,22 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-white/10 px-4 py-12 sm:px-6 lg:px-10">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/brand/logo.png" alt="The Chorus Makers" className="h-16 w-auto" />
+          <div className="inline-flex self-start rounded-2xl bg-[#f6f1e4] p-3 ring-1 ring-accent/40">
+            <img src="/brand/logo.png" alt="The Chorus Makers" className="h-20 w-auto" />
           </div>
-          <div className="flex flex-col gap-2 text-sm text-paper/60 sm:items-end">
-            <a href="https://instagram.com/thechorusmakers" className="font-semibold text-paper transition-colors hover:text-accent">@thechorusmakers</a>
-            <span>© 2026 The Chorus Makers. Custom music for special occasions.</span>
+          <div className="flex flex-col gap-4 text-sm text-paper/60 sm:items-end">
+            {socialLinks.length > 0 && (
+              <ul className="flex items-center gap-3" aria-label="Follow The Chorus Makers">
+                {socialLinks.map(({ label, href, Icon }) => (
+                  <li key={label}>
+                    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={`The Chorus Makers on ${label}`} className="flex size-11 items-center justify-center rounded-full border border-white/15 text-paper transition-colors hover:border-accent hover:text-accent">
+                      <Icon size={18} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <span>@thechorusmakers · © 2026 The Chorus Makers. Custom music for special occasions.</span>
           </div>
         </div>
       </footer>

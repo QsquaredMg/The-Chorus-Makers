@@ -16,8 +16,8 @@ export const TIERS = {
     name: 'Premium',
     amountCents: 14900,
     turnaround: '24 hours',
-    summary: 'Faster delivery with a lyric video you can share.',
-    includes: ['Everything in Classic', '24-hour turnaround', 'Lyric video'],
+    summary: 'Faster delivery, with priority in our queue.',
+    includes: ['Everything in Classic', '24-hour turnaround'],
   },
   rush: {
     id: 'rush',
@@ -39,6 +39,8 @@ export const OCCASIONS = [
   'Proposal',
   'New baby',
   'Business & brand',
+  'Teams & sports',
+  'Just because',
 ] as const
 
 export const MOODS = ['Joyful', 'Romantic', 'Nostalgic', 'Playful', 'Uplifting'] as const
@@ -50,3 +52,10 @@ export const CONSENT_TEXT =
 export function isTierId(value: unknown): value is TierId {
   return typeof value === 'string' && value in TIERS
 }
+
+// Public social pages. Leave a URL empty to hide that link.
+export const SOCIAL = {
+  instagram: 'https://www.instagram.com/thechorusmakers',
+  facebook: '',
+  tiktok: '',
+} as const
