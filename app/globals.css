@@ -4,6 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Brand tokens, sampled from the logo and social posts.
+   Plum is the base, gold is the accent and stays under about 10% of any screen. */
 @theme inline {
   --font-sans: var(--font-body);
   --font-display: var(--font-display-family);
@@ -16,33 +18,74 @@
   --color-accent: var(--accent);
   --color-ink: var(--ink);
   --color-paper: var(--paper);
+  --color-plum: var(--plum);
+  --color-violet: var(--violet);
 }
 
 :root {
-  color-scheme: light;
-  --background: oklch(0.965 0.012 80);
-  --foreground: oklch(0.18 0.015 65);
-  --card: oklch(0.985 0.008 80);
-  --card-foreground: oklch(0.18 0.015 65);
-  --border: oklch(0.86 0.018 75);
-  --muted-foreground: oklch(0.48 0.025 65);
-  --accent: oklch(0.62 0.13 41);
-  --ink: oklch(0.2 0.018 62);
-  --paper: oklch(0.975 0.008 80);
+  color-scheme: dark;
+  --background: #14072a;
+  --foreground: #f6f1e4;
+  --card: #1d0c3a;
+  --card-foreground: #f6f1e4;
+  --border: rgba(212, 167, 58, 0.22);
+  --muted-foreground: #b9abd3;
+  --accent: #d4a73a;
+  --ink: #0c0812;
+  --paper: #f6f1e4;
+  --plum: #2a1152;
+  --violet: #8b3fe0;
   --radius: 1rem;
 }
 
 @layer base {
   * { @apply border-border; }
   html { scroll-behavior: smooth; }
-  body { @apply bg-background text-foreground; font-family: var(--font-body), sans-serif; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body), system-ui, sans-serif;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, rgba(139, 63, 224, 0.28), transparent 60%),
+      radial-gradient(700px 500px at -10% 30%, rgba(212, 167, 58, 0.08), transparent 60%);
+    background-attachment: fixed;
+  }
 }
 
-.font-display { font-family: var(--font-display-family), Georgia, serif; }
-.eyebrow { @apply text-xs font-semibold uppercase tracking-[0.18em] text-accent; }
-.field { @apply mt-1 rounded-xl border border-border bg-background px-4 py-3 text-sm font-normal outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-foreground focus:ring-2 focus:ring-foreground/10; }
+.font-display {
+  font-family: var(--font-display-family), 'Arial Narrow', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  @apply text-xs font-bold uppercase tracking-[0.2em] text-accent;
+}
+
+.gold-text {
+  background: linear-gradient(180deg, #f3d989 0%, #d4a73a 55%, #a87c24 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.field {
+  @apply mt-1 rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-sm font-normal text-paper outline-none transition-colors placeholder:text-white/35 focus:border-accent focus:ring-2 focus:ring-accent/25;
+}
 select.field { @apply appearance-auto; }
+select.field option { @apply bg-[#1d0c3a] text-paper; }
 textarea.field { @apply leading-6; }
+
+.reveal {
+  animation: reveal 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { animation: none; }
+}
 
 @media (max-width: 640px) {
   .field { @apply py-3.5; }

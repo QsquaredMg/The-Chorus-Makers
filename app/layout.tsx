@@ -1,23 +1,36 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { DM_Sans, Libre_Baskerville } from 'next/font/google'
+import { Bebas_Neue, Montserrat } from 'next/font/google'
 import './globals.css'
 
-const body = DM_Sans({ subsets: ['latin'], variable: '--font-body' })
-const display = Libre_Baskerville({ subsets: ['latin'], variable: '--font-display-family', weight: ['400', '700'] })
+const body = Montserrat({ subsets: ['latin'], variable: '--font-body', weight: ['400', '500', '600', '700', '800'] })
+const display = Bebas_Neue({ subsets: ['latin'], variable: '--font-display-family', weight: '400' })
 
 export const metadata: Metadata = {
-  title: 'The Chorus Makers | Original songs for meaningful moments',
-  description: 'Turn your story into an original song made just for them.',
-  generator: 'v0.app',
+  metadataBase: new URL('https://www.thechorusmakers.com'),
+  title: 'The Chorus Makers | Custom songs for weddings, teams, birthdays and more',
+  description: 'Turn your story into an original song made just for the people you love. Every song is written, produced and reviewed by hand.',
+  openGraph: {
+    title: 'The Chorus Makers | Custom music for special occasions',
+    description: 'Original songs made from your story. Weddings, birthdays, memorials, teams and business.',
+    images: ['/brand/hero-couple.jpg'],
+  },
+  icons: { icon: '/brand/logo.png' },
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light',
-  themeColor: '#f4f1eb',
+  colorScheme: 'dark',
+  themeColor: '#14072a',
   userScalable: true,
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={`${body.variable} ${display.variable} antialiased`}>{children}{process.env.NODE_ENV === 'production' && <Analytics />}</body></html>
+  return (
+    <html lang="en">
+      <body className={`${body.variable} ${display.variable} antialiased`}>
+        {children}
+        {process.env.NODE_ENV === 'production' && <Analytics />}
+      </body>
+    </html>
+  )
 }
