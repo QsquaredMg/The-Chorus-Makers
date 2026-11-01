@@ -56,6 +56,6 @@ export function isTierId(value: unknown): value is TierId {
 // Public social pages. Leave a URL empty to hide that link.
 export const SOCIAL = {
   instagram: 'https://www.instagram.com/thechorusmakers',
-  facebook: '',
+  facebook: 'https://www.facebook.com/TheChorusMakers',
   tiktok: '',
 } as const
