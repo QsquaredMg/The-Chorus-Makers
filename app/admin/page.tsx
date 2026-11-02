@@ -224,6 +224,36 @@ function OrderPanel({ order, api, onChange, onClose }: { order: Order; api: (pat
   const [clientNote, setClientNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const dueBy = (() => {
+    if (!order.paid_at) return '—'
+    const hours: Record<string, number> = { classic: 72, premium: 24 }
+    const h = hours[order.tier]
+    if (!h) return 'Same day (ordered before 2 pm Central)'
+    return when(new Date(new Date(order.paid_at).getTime() + h * 3600 * 1000).toISOString())
+  })()
+
+  const briefText = [
+    `Occasion: ${order.occasion}`,
+    `Mood: ${order.mood}`,
+    `Song is for: ${order.recipient_name}`,
+    `Tier: ${order.tier}`,
+    `Due by: ${dueBy}`,
+    '',
+    'Story:',
+    order.story,
+  ].join('\n')
+
+  async function copyBrief() {
+    try {
+      await navigator.clipboard.writeText(briefText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setNote('Could not copy. Select the story text and copy it manually.')
+    }
+  }
 
   async function save(extra: Record<string, unknown> = {}) {
     setBusy(true)
@@ -267,9 +297,18 @@ function OrderPanel({ order, api, onChange, onClose }: { order: Order; api: (pat
         <dt className="text-paper/55">Stripe session</dt><dd className="break-all font-mono text-xs">{order.stripe_session_id ?? '—'}</dd>
       </dl>
 
-      <div>
-        <p className="text-xs uppercase tracking-[0.15em] text-paper/55">Story</p>
-        <p className="mt-2 whitespace-pre-wrap rounded-xl bg-black/20 p-4 text-sm leading-6">{order.story}</p>
+      <div className="rounded-xl border border-[#d4a73a]/30 bg-black/20 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs uppercase tracking-[0.15em] text-[#d4a73a]">Song brief</p>
+          <button onClick={copyBrief} className="text-xs font-bold text-paper/80 hover:text-paper">{copied ? 'Copied' : 'Copy brief'}</button>
+        </div>
+        <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+          <dt className="text-paper/55">Occasion</dt><dd>{order.occasion}</dd>
+          <dt className="text-paper/55">Mood</dt><dd>{order.mood}</dd>
+          <dt className="text-paper/55">Song is for</dt><dd>{order.recipient_name}</dd>
+          <dt className="text-paper/55">Due by</dt><dd>{dueBy}</dd>
+        </dl>
+        <p className="mt-3 whitespace-pre-wrap rounded-lg bg-black/30 p-3 text-sm leading-6">{order.story}</p>
       </div>
 
       <div className="space-y-3">
