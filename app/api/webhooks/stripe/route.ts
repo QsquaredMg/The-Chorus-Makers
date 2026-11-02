@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { stripe, supabaseAdmin } from '@/lib/server'
+import { pushNotify } from '@/lib/notify'
 
 export const runtime = 'nodejs'
 
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
 
     // Only move orders forward from pending_payment, so retries are safe.
     if (session.payment_status === 'paid') {
-      await db
+      const { data: paidRows } = await db
         .from('orders')
         .update({
           status: 'paid',
@@ -39,6 +40,18 @@ export async function POST(request: Request) {
         })
         .eq('id', orderId)
         .eq('status', 'pending_payment')
+        .select('id, tier, occasion, recipient_name, customer_name, amount_paid_cents')
+
+      // Notify once per order. Stripe retries are ignored because the row is no longer pending.
+      if (paidRows && paidRows.length > 0) {
+        const order = paidRows[0]
+        const amount = order.amount_paid_cents ? `$${(order.amount_paid_cents / 100).toFixed(0)}` : ''
+        await pushNotify(
+          `New song order: ${order.tier} ${amount}`.trim(),
+          `${order.occasion} for ${order.recipient_name}, ordered by ${order.customer_name}. Open the admin site to review.`,
+          'musical_note,moneybag',
+        )
+      }
     }
   }
 
