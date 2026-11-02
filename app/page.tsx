@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react'
 import { ArrowRight, Baby, Briefcase, Cake, CheckCircle2, Clock3, Flower2, Gem, Headphones, Heart, Mic2, Music2, Megaphone, ShieldCheck, Star, Trophy, Users, Zap } from 'lucide-react'
 import { CONSENT_TEXT, MOODS, OCCASIONS, SOCIAL, TIERS, type TierId } from '@/lib/catalog'
-import { SONG_SAMPLES } from '@/lib/samples'
 
 const money = (cents: number) => `$${(cents / 100).toFixed(0)}`
 
 type Review = { display_name: string; occasion: string; rating: number; body: string; created_at: string }
+type Sample = { id: string; title: string; occasion: string; style: string; description: string; src: string }
 
 function Stars({ count, size = 16 }: { count: number; size?: number }) {
   return (
@@ -160,6 +160,14 @@ export default function Home() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
+  const [samples, setSamples] = useState<Sample[]>([])
+
+  useEffect(() => {
+    fetch('/api/samples')
+      .then((response) => response.json())
+      .then((data) => setSamples(Array.isArray(data.samples) ? data.samples : []))
+      .catch(() => setSamples([]))
+  }, [])
 
   function loadReviews() {
     fetch('/api/reviews')
@@ -288,14 +296,14 @@ export default function Home() {
       </section>
 
       {/* Song examples */}
-      {SONG_SAMPLES.length > 0 && (
+      {samples.length > 0 && (
         <section id="samples" className="border-y border-white/5 bg-[#1d0c3a]/50 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <p className="eyebrow">Listen</p>
             <h2 className="font-display mt-4 text-5xl leading-[0.95] sm:text-7xl">Songs we have made</h2>
             <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {SONG_SAMPLES.map((sample) => (
-                <figure key={sample.src} className="flex flex-col gap-5 rounded-[1.5rem] border border-white/12 bg-[#14072a]/70 p-6">
+              {samples.map((sample) => (
+                <figure key={sample.id} className="flex flex-col gap-5 rounded-[1.5rem] border border-white/12 bg-[#14072a]/70 p-6">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">{sample.occasion} · {sample.style}</p>
                     <figcaption className="font-display mt-2 text-3xl tracking-wide">{sample.title}</figcaption>

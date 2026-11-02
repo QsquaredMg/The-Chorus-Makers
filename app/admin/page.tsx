@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { createClient, type Session } from '@supabase/supabase-js'
+import { ReviewsAdmin, SamplesAdmin } from './panels'
 
 const STATUSES = [
   'pending_payment', 'paid', 'queued', 'drafting', 'generating', 'ready_for_review',
@@ -48,6 +49,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<string>('all')
+  const [tab, setTab] = useState<'orders' | 'reviews' | 'samples'>('orders')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [authError, setAuthError] = useState<string | null>(null)
@@ -145,15 +147,25 @@ export default function AdminPage() {
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d4a73a]">The Chorus Makers</p>
-          <h1 className="text-xl font-bold">Orders</h1>
+          <h1 className="text-xl font-bold">Admin</h1>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <span className="text-paper/60">{session.user.email}</span>
-          <button onClick={loadOrders} className="rounded-full border border-white/20 px-4 py-2 hover:border-[#d4a73a]">Refresh</button>
+          {tab === 'orders' && <button onClick={loadOrders} className="rounded-full border border-white/20 px-4 py-2 hover:border-[#d4a73a]">Refresh</button>}
           <button onClick={() => supabase.auth.signOut()} className="rounded-full border border-white/20 px-4 py-2 hover:border-[#d4a73a]">Sign out</button>
         </div>
       </header>
 
+      <nav className="flex gap-2 px-5 pt-5">
+        {([['orders', 'Orders'], ['reviews', 'Testimonials'], ['samples', 'Song samples']] as const).map(([key, label]) => (
+          <button key={key} onClick={() => setTab(key)} className={`rounded-full px-5 py-2 text-sm ${tab === key ? 'bg-[#d4a73a] font-bold text-[#14072a]' : 'border border-white/20 hover:border-[#d4a73a]'}`}>{label}</button>
+        ))}
+      </nav>
+
+      {tab === 'reviews' && <div className="pt-5"><ReviewsAdmin api={api} /></div>}
+      {tab === 'samples' && <div className="pt-5"><SamplesAdmin api={api} supabase={supabase} /></div>}
+
+      {tab === 'orders' && (<>
       <section className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-4">
         {[
           ['Revenue', money(stats.revenue)],
@@ -213,6 +225,7 @@ export default function AdminPage() {
 
         {selected && <OrderPanel key={selected.id} order={selected} api={api} onChange={(updated) => setOrders((list) => list.map((o) => (o.id === updated.id ? updated : o)))} onClose={() => setSelectedId(null)} />}
       </div>
+      </>)}
     </main>
   )
 }
