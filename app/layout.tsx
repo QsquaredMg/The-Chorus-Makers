@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Bebas_Neue, Montserrat } from 'next/font/google'
 import './globals.css'
 
-const body = Montserrat({ subsets: ['latin'], variable: '--font-body', weight: ['400', '500', '600', '700', '800'] })
+const body = Montserrat({ subsets: ['latin'], variable: '--font-body' })
 const display = Bebas_Neue({ subsets: ['latin'], variable: '--font-display-family', weight: '400' })
 
 export const metadata: Metadata = {
