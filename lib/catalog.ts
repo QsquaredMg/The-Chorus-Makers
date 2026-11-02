@@ -6,7 +6,7 @@ export const TIERS = {
   classic: {
     id: 'classic',
     name: 'Classic',
-    amountCents: 7900,
+    amountCents: 4900,
     turnaround: '72 hours',
     summary: 'Original song, lyrics written by hand, reviewed before delivery.',
     includes: ['Original song in your chosen style', 'Hand-reviewed before delivery', 'One round of revisions'],
@@ -14,7 +14,7 @@ export const TIERS = {
   premium: {
     id: 'premium',
     name: 'Premium',
-    amountCents: 14900,
+    amountCents: 8900,
     turnaround: '24 hours',
     summary: 'Faster delivery, with priority in our queue.',
     includes: ['Everything in Classic', '24-hour turnaround'],
@@ -22,7 +22,7 @@ export const TIERS = {
   rush: {
     id: 'rush',
     name: 'Rush',
-    amountCents: 24900,
+    amountCents: 12500,
     turnaround: 'Same day',
     summary: 'Priority queue. Order before 2 pm Central for same-day delivery.',
     includes: ['Everything in Premium', 'Priority queue', 'Same-day delivery when ordered before 2 pm Central'],
